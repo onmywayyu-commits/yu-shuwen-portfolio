@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="俞舒文的个人作品集网站：金融方向的履历与动画、音乐、游戏、手作的兴趣角落。" />
+    <title>俞舒文 · 个人作品集</title>
+    <script>
+      // 避免深色模式闪烁：渲染前根据本地存储/系统偏好设置主题
+      (function () {
+        try {
+          var saved = localStorage.getItem('theme')
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+          if (saved === 'dark' || (!saved && prefersDark)) {
+            document.documentElement.classList.add('dark')
+          }
+        } catch (e) {}
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
