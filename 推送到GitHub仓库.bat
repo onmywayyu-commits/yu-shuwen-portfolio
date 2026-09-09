@@ -2,6 +2,9 @@
 chcp 65001 >nul
 setlocal
 
+set "GIT_HOME=C:\Users\25895\.workbuddy\binaries\PortableGit\versions\1.2.0"
+set "PATH=%GIT_HOME%\cmd;%GIT_HOME%\mingw64\bin;%GIT_HOME%\usr\bin;%PATH%"
+
 echo ====================================================
 echo  推送到 GitHub 仓库：yu-shuwen-portfolio
 echo ====================================================
