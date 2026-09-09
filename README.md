@@ -55,9 +55,9 @@ npm run preview  # 本地预览构建产物
 网站**不依赖外部图床**。没有图片时会自动生成柔和配色的占位封面，不会影响阅读。
 
 - 动画 / 音乐 / 游戏封面：把图片放进 `public/covers/`，然后把对应条目的
-  `cover` 字段改成 `'/covers/文件名.jpg'`；
+  `cover` 字段改成 `'covers/文件名.jpg'`（**不要以 `/` 开头**，否则 GitHub Pages 子路径会 404）；
 - 手作照片：把图片放进 `public/crafts/`，把 `image` 字段改成
-  `'/crafts/文件名.jpg'`；
+  `'crafts/文件名.jpg'`（同样不要以 `/` 开头）；
 - 想换 Hero 区的抽象背景：改 `src/components/Hero.tsx` 里的 SVG 装饰
   （这是唯一需要动组件的地方，纯装饰，可整段删掉换成 `<img>`）。
 
