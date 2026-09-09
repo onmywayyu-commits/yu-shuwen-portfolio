@@ -43,7 +43,7 @@ npm run preview  # 本地预览构建产物
 ### 新番评价的更新方式
 
 每季度看完新番后，在 `animeEntries` 里按现有格式追加条目即可：
-- `tier` 只能是：`'夯' | '人上人' | 'Npc-人上人' | 'npc' | '拉' | '未评'`；
+- `tier` 只能是：`'夯' | '顶级' | '人上人' | 'npc' | '拉' | '未评'`；
 - 复合评级（如「人上人制作 - npc 剧情」）把补充说明写进 `tierNote`；
 - `detail` 是弹窗里展示的完整长评，不写则弹窗显示 `shortReview`；
 - 弃番加 `dropped: true`；补番把 `status` 改成 `'补番'`。
@@ -65,25 +65,36 @@ npm run preview  # 本地预览构建产物
 
 ## 四、部署（让别人能访问）
 
-### 方式 A：Vercel（推荐，免费且自动更新）
+### 方式 A：GitHub Pages（已配置好）
 
-1. 把本项目推送到你自己的 GitHub 仓库（`git init` → 提交 → 关联远程 → 推送）；
+本项目已配置 GitHub Actions，每次 push 到 `main` 分支会自动构建并发布到 GitHub Pages。
+
+**仓库名**：`yu-shuwen-portfolio`  
+**发布后的网址**：`https://你的GitHub用户名.github.io/yu-shuwen-portfolio/`
+
+操作步骤：
+
+1. 在 GitHub 上新建一个空仓库，命名为 **`yu-shuwen-portfolio`**，不要勾选 README；
+2. 在本项目目录下关联远程仓库并推送：
+   ```bash
+   git remote add origin https://github.com/你的GitHub用户名/yu-shuwen-portfolio.git
+   git branch -M main
+   git push -u origin main
+   ```
+3. 打开 GitHub 仓库 → **Settings → Pages**；
+4. 在 **Build and deployment → Source** 里选择 **GitHub Actions**；
+5. 回到仓库首页 → **Actions**，等待 workflow 跑完（第一次约 1-2 分钟）；
+6. 完成后访问 `https://你的GitHub用户名.github.io/yu-shuwen-portfolio/`。
+
+之后**每次 push 到 main，网站都会自动重新构建发布**：
+改 `src/data/siteData.ts` → `git add .` → `git commit -m "更新内容"` → `git push`，线上约 1 分钟后更新。
+
+### 方式 B：Vercel（备选，同样免费且自动更新）
+
+1. 把本项目推送到你自己的 GitHub 仓库；
 2. 到 [vercel.com](https://vercel.com) 用 GitHub 登录，点 **Add New → Project**，选中这个仓库；
 3. Vercel 会自动识别 Vite 项目（Build Command: `npm run build`，Output: `dist`），点 Deploy；
-4. 之后**每次 push 到 GitHub，Vercel 都会自动重新构建发布**——这就是"持续更新"：
-   改 `siteData.ts` → push → 一分钟后线上就是新内容。
-
-### 方式 B：GitHub Pages
-
-1. `npm run build` 得到 `dist/`；
-2. 在 `vite.config.ts` 里加 `base: '/仓库名/'`；
-3. 用 `gh-pages` 分支或 GitHub Actions 发布 `dist/`
-   （可搜索 "Vite GitHub Pages" 官方指南，或让我帮你配好）。
-
-### 更新后重新发布
-
-- Vercel：push 即自动发布，无需其他操作；
-- GitHub Pages：重新 build 并推送 `dist/`（或交给 Action 自动跑）。
+4. 之后每次 push 到 GitHub，Vercel 都会自动重新构建发布。
 
 ### 进阶：无代码后台（本次未实现）
 
