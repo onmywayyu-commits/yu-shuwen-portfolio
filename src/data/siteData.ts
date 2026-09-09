@@ -58,7 +58,8 @@ export interface AnimeEntry {
   shortReview: string
   detail?: string // 完整长评，在弹窗中展示
   dropped?: boolean // 已弃番
-  /** 封面图路径（放 public/covers/ 下），留空则使用自动生成的占位封面 */
+  /** 封面图路径（放 public/covers/ 下），留空则使用自动生成的占位封面。
+   *  注意：不要以 / 开头，写 'covers/文件名' 即可，否则 GitHub Pages 子路径会 404。 */
   cover?: string
 }
 
@@ -94,7 +95,7 @@ export interface CreativeEntry {
   date: string
   kind: '手作' | '吉他' | '唱歌'
   description: string
-  image?: string // 图片放 public/crafts/ 下；留空使用占位块
+  image?: string // 图片放 public/crafts/ 下；留空使用占位块。同样不要以 / 开头。
   link?: string // Bilibili / 网易云 / YouTube 等外链
   linkLabel?: string
   /** 占位块的高度档位，仅在没有图片时用于瀑布流视觉错落 */
@@ -277,7 +278,7 @@ export const animeEntries: AnimeEntry[] = [
     tier: '夯',
     shortReview: '小美人鱼现代新编集（？）最爱复古赛璐璐画风，冲画风制作也会看完的。',
     dropped: false,
-    cover: '/covers/再见拉拉.png',
+    cover: 'covers/再见拉拉.png',
     id: 'a2607-01',
   },
 {
@@ -288,7 +289,7 @@ export const animeEntries: AnimeEntry[] = [
     tier: '夯',
     shortReview: '制作牛逼，美术顶级，完全爱上。虽然略沉重。',
     dropped: false,
-    cover: '/covers/穹庐下的魔女.avif',
+    cover: 'covers/穹庐下的魔女.avif',
     id: 'a2607-02',
   },
 {
@@ -383,7 +384,7 @@ export const animeEntries: AnimeEntry[] = [
     tier: '顶级',
     shortReview: '哥斯拉真的是很猎奇 除此以外都很好了 男帅女萌',
     dropped: false,
-    cover: '/covers/少女怪兽焦糖味.avif',
+    cover: 'covers/少女怪兽焦糖味.avif',
     id: 'a2607-11',
   },
 {
@@ -520,7 +521,7 @@ export const animeEntries: AnimeEntry[] = [
     shortReview: '赞',
     detail: '赞；关系性好吃；已补完漫画（绝赞美味）（不能做到后面精彩部分略遗憾，求续作）',
     dropped: false,
-    cover: '/covers/冰之城墙.avif',
+    cover: 'covers/冰之城墙.avif',
     id: 'a2604-01',
   },
 {
@@ -531,7 +532,7 @@ export const animeEntries: AnimeEntry[] = [
     tier: '夯',
     shortReview: '最爱校园 画风好 厨力高',
     dropped: false,
-    cover: '/covers/加油吧中村君.avif',
+    cover: 'covers/加油吧中村君.avif',
     id: 'a2604-02',
   },
 {
@@ -853,7 +854,7 @@ export const creativeEntries: CreativeEntry[] = [
     date: '',
     kind: '手作',
     description: '',
-    image: '/crafts/爱书的下克上拼豆.jpg',
+    image: 'crafts/爱书的下克上拼豆.jpg',
     link: 'https://www.bilibili.com/video/BV1ht8h6JE3B/?spm_id_from=333.1387.homepage.video_card.click&vd_source=2a0effb732ca99608917c5fd7fcca538',
     linkLabel: '制作过程视频',
     id: 'c-01',
