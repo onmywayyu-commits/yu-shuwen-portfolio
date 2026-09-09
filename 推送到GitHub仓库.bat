@@ -13,7 +13,8 @@ echo 提醒：请先在 GitHub 上创建名为 yu-shuwen-portfolio 的空仓库�
 echo       并选择 Public（GitHub Pages 免费版需要公开仓库）。
 echo.
 
-set /p USERNAME=请输入你的 GitHub 用户名: 
+set /p USERNAME=请输入你的 GitHub 用户名（默认 onmywayyu-commits）: 
+if "%USERNAME%"=="" set USERNAME=onmywayyu-commits
 
 if "%USERNAME%"=="" (
     echo 用户名不能为空。
