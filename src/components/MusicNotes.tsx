@@ -1,130 +1,187 @@
 import { useMemo, useState } from 'react'
 import CoverArt from './CoverArt'
-import { musicEntries } from '../data/siteData'
+import libraryData from '../data/libraryData.json'
 
-/** 唱片 / CD 视觉元素（纯装饰，不影响可读性） */
-function Vinyl({ seed, title, cover }: { seed: string; title: string; cover?: string }) {
+/* ---------- Types ---------- */
+interface Music {
+  id: string
+  title: string
+  artist: string
+  album?: string
+  tags: string[]
+  comment: string
+  favoritePart?: string
+  link?: string
+  monthlyPick?: boolean
+  cover?: string
+}
+
+/* ---------- Data ---------- */
+const musics: Music[] = libraryData.musics as Music[]
+
+/* ---------- Components ---------- */
+function TagFilter({
+  tags,
+  value,
+  onChange,
+}: {
+  tags: string[]
+  value: string
+  onChange: (v: string) => void
+}) {
   return (
-    <div className="relative h-24 w-24 shrink-0">
-      <div className="absolute inset-0 overflow-hidden rounded-full border border-line shadow-sm">
-        <CoverArt seed={seed} title={title} image={cover} />
-      </div>
-      <div
-        aria-hidden="true"
-        className="absolute inset-[30%] rounded-full border border-line bg-surface"
-      />
-      <div aria-hidden="true" className="absolute inset-[46%] rounded-full bg-line" />
+    <div className="mb-6 flex flex-wrap items-center gap-2">
+      <span className="text-xs font-medium tracking-wide text-[var(--muted)]">风格</span>
+      {tags.map((t) => (
+        <button
+          key={t}
+          type="button"
+          onClick={() => onChange(t)}
+          aria-pressed={value === t}
+          className={`rounded-full border px-3.5 py-1.5 text-xs font-medium transition-all ${
+            value === t
+              ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent-strong)]'
+              : 'border-[var(--line)] bg-[var(--surface)] text-[var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent-strong)]'
+          }`}
+        >
+          {t}
+        </button>
+      ))}
     </div>
   )
 }
 
+function PlayButton({ href, label }: { href?: string; label: string }) {
+  if (href) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noreferrer"
+        className="inline-flex items-center gap-1.5 rounded-full border border-[var(--accent)] bg-[var(--accent-soft)] px-3 py-1.5 text-xs font-medium text-[var(--accent-strong)] transition-all hover:bg-[var(--accent)] hover:text-white"
+      >
+        <PlayIcon />
+        {label}
+      </a>
+    )
+  }
+
+  return (
+    <span className="inline-flex cursor-not-allowed items-center gap-1.5 rounded-full border border-[var(--line)] bg-[var(--surface)] px-3 py-1.5 text-xs text-[var(--muted)]">
+      <PlayIcon />
+      试听链接待补充
+    </span>
+  )
+}
+
+function PlayIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M8 5v14l11-7z" />
+    </svg>
+  )
+}
+
+function MusicCard({ music }: { music: Music }) {
+  const [isLyricsExpanded, setIsLyricsExpanded] = useState(false)
+
+  return (
+    <article className="group flex gap-4 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(96,76,88,0.14)] sm:gap-5 sm:p-5">
+      {/* Album cover */}
+      <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl border border-[var(--line)] shadow-sm transition-transform duration-300 group-hover:scale-[1.03] sm:h-28 sm:w-28">
+        <CoverArt seed={music.id} title={music.title} image={music.cover} />
+        {music.monthlyPick && (
+          <span className="absolute -right-5 -top-5 flex h-14 w-14 rotate-45 items-end justify-center bg-[#c5b8d6] pb-1 text-[10px] font-bold text-[#4a3b5c]">
+            PICK
+          </span>
+        )}
+      </div>
+
+      {/* Info */}
+      <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h4 className="truncate text-base font-bold text-[var(--ink)] sm:text-lg">{music.title}</h4>
+            <p className="mt-0.5 truncate text-sm text-[var(--accent-strong)]">{music.artist}</p>
+            {music.album && <p className="truncate text-xs text-[var(--muted)]">{music.album}</p>}
+          </div>
+        </div>
+
+        <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-[var(--muted)] sm:text-sm">
+          {music.comment}
+        </p>
+
+        {music.favoritePart && (
+          <div className="mt-3 rounded-xl border border-[var(--line)] bg-[#faf7f5] p-3 dark:bg-[#2e292f]">
+            <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--accent)]">
+              喜欢的片段
+            </p>
+            <p
+              className={`text-xs leading-relaxed whitespace-pre-line text-[var(--ink)] ${
+                isLyricsExpanded ? '' : 'line-clamp-3'
+              }`}
+            >
+              {music.favoritePart}
+            </p>
+            {music.favoritePart.split('\n').length > 3 && (
+              <button
+                type="button"
+                onClick={() => setIsLyricsExpanded((v) => !v)}
+                className="mt-1.5 text-[10px] font-medium text-[var(--accent-strong)] hover:underline"
+              >
+                {isLyricsExpanded ? '收起' : '展开'}
+              </button>
+            )}
+          </div>
+        )}
+
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-3">
+          <div className="flex flex-wrap gap-1.5">
+            {music.tags.map((tag) => (
+              <span
+                key={tag}
+                className="rounded-full border border-[var(--line)] bg-[var(--bg)] px-2 py-0.5 text-[10px] text-[var(--muted)]"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+          <PlayButton href={music.link} label={music.monthlyPick ? '本月循环试听' : '试听'} />
+        </div>
+      </div>
+    </article>
+  )
+}
+
+/* ---------- Main ---------- */
 export default function MusicNotes() {
   const tags = useMemo(
-    () => ['全部', ...Array.from(new Set(musicEntries.flatMap((m) => m.tags)))],
+    () => ['全部', ...Array.from(new Set(musics.flatMap((m) => m.tags)))],
     [],
   )
   const [tag, setTag] = useState('全部')
 
-  const picks = musicEntries.filter((m) => m.monthlyPick)
-  const filtered = musicEntries.filter((m) => tag === '全部' || m.tags.includes(tag))
+  const filtered = musics.filter((m) => tag === '全部' || m.tags.includes(tag))
 
   return (
     <div>
-      <p className="mb-5 text-sm text-muted">
-        音乐推荐与乐评，不是播放器——点链接会跳转到对应的音乐平台。有「本月循环」标记的是近期循环次数最多的歌。
+      <p className="mb-5 text-sm leading-relaxed text-[var(--muted)]">
+        音乐推荐与乐评。歌词片段使用原文与中文对照，展开可查看完整内容。
       </p>
 
-      {/* 本月循环 */}
-      {picks.length > 0 && (
-        <div className="mb-8">
-          <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold text-accent-strong">
-            <span aria-hidden="true" className="inline-block h-2 w-2 animate-pulse rounded-full bg-warm" />
-            本月循环
-          </h4>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {picks.map((m) => (
-              <div
-                key={m.id}
-                className="flex items-center gap-4 rounded-2xl border border-warm/40 bg-warm-soft/50 p-4"
-              >
-                <Vinyl seed={m.id} title={m.title} cover={m.cover} />
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold">{m.title}</p>
-                  <p className="text-xs text-muted">{m.artist}</p>
-                  <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-muted">{m.comment}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      <TagFilter tags={tags} value={tag} onChange={setTag} />
 
-      {/* 标签筛选 */}
-      <div className="mb-6 flex flex-wrap gap-2">
-        {tags.map((t) => (
-          <button
-            key={t}
-            type="button"
-            onClick={() => setTag(t)}
-            aria-pressed={tag === t}
-            className={`rounded-full border px-3 py-1 text-xs transition-colors sm:text-sm ${
-              tag === t
-                ? 'border-accent bg-accent-soft font-medium text-accent-strong'
-                : 'border-line bg-surface text-muted hover:border-accent/50 hover:text-accent'
-            }`}
-          >
-            {t}
-          </button>
-        ))}
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
         {filtered.map((m) => (
-          <article
-            key={m.id}
-            className="rounded-2xl border border-line bg-surface p-5 transition-all hover:-translate-y-0.5 hover:shadow-md"
-          >
-            <div className="flex items-center gap-4">
-              <Vinyl seed={m.id} title={m.title} cover={m.cover} />
-              <div className="min-w-0">
-                <h5 className="truncate text-sm font-semibold sm:text-base">{m.title}</h5>
-                <p className="text-xs text-muted sm:text-sm">{m.artist}</p>
-                <div className="mt-1.5 flex flex-wrap gap-1.5">
-                  {m.tags.map((t) => (
-                    <span key={t} className="rounded-full bg-accent-soft px-2 py-0.5 text-xs text-accent-strong">
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-            {m.reason && (
-              <p className="mt-3 text-xs leading-relaxed text-muted sm:text-sm">{m.reason}</p>
-            )}
-            <p className="mt-2 border-l-2 border-warm/50 pl-3 text-xs italic leading-relaxed text-ink sm:text-sm">
-              {m.comment}
-            </p>
-            {m.favoritePart && (
-              <div className="mt-3 rounded-xl bg-surface p-3 text-xs leading-relaxed text-muted sm:text-sm">
-                <p className="mb-1 font-medium text-ink">喜欢的片段</p>
-                <p className="whitespace-pre-line">{m.favoritePart}</p>
-              </div>
-            )}
-            {m.link ? (
-              <a
-                href={m.link}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-3 inline-block text-xs font-medium text-accent underline-offset-4 hover:underline"
-              >
-                在音乐平台收听 →
-              </a>
-            ) : (
-              <p className="mt-3 text-xs text-muted">平台链接待补充</p>
-            )}
-          </article>
+          <MusicCard key={m.id} music={m} />
         ))}
       </div>
+
+      {filtered.length === 0 && (
+        <p className="mt-8 rounded-xl border border-dashed border-[var(--line)] p-8 text-center text-sm text-[var(--muted)]">
+          这个筛选组合下暂时没有条目。
+        </p>
+      )}
     </div>
   )
 }
