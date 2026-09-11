@@ -26,44 +26,56 @@ const animes: Anime[] = libraryData.animes as Anime[]
 
 const tierOrder: AnimeTier[] = ['夯', '顶级', '人上人', 'npc', '拉', '未评']
 
-const tierDisplay = (tier: AnimeTier): string => (tier === 'npc' ? 'NPC' : tier)
-
-/** 莫兰迪色系梯队标签 */
-const tierTheme: Record<AnimeTier, { labelBg: string; labelText: string; dot: string; border: string }> = {
+const tierMeta: Record<
+  AnimeTier,
+  { label: string; sub: string; labelBg: string; labelText: string; accent: string; border: string }
+> = {
   夯: {
-    labelBg: 'bg-[#e6c2b0]',
-    labelText: 'text-[#7a4f3d]',
-    dot: 'bg-[#b07d62]',
-    border: 'border-[#d6a88e]',
+    label: '夯',
+    sub: 'LOVE',
+    labelBg: 'bg-[#d8c4b8]',
+    labelText: 'text-[#5d3f30]',
+    accent: '#b07d62',
+    border: 'border-[#c9a992]',
   },
   顶级: {
-    labelBg: 'bg-[#c5b8d6]',
+    label: '顶级',
+    sub: 'LIKE',
+    labelBg: 'bg-[#c8bcd6]',
     labelText: 'text-[#4a3b5c]',
-    dot: 'bg-[#7d6a91]',
+    accent: '#7d6a91',
     border: 'border-[#a99bbd]',
   },
   人上人: {
+    label: '人上人',
+    sub: 'OK',
     labelBg: 'bg-[#b8c9d6]',
     labelText: 'text-[#314a5a]',
-    dot: 'bg-[#5e7d91]',
+    accent: '#5e7d91',
     border: 'border-[#9bb0c0]',
   },
   npc: {
+    label: 'NPC',
+    sub: 'NORMAL',
     labelBg: 'bg-[#d1ccc7]',
     labelText: 'text-[#4a4744]',
-    dot: 'bg-[#8a8580]',
+    accent: '#8a8580',
     border: 'border-[#b8b2ac]',
   },
   拉: {
+    label: '拉',
+    sub: 'DROP',
     labelBg: 'bg-[#d6b8b8]',
     labelText: 'text-[#5a3131]',
-    dot: 'bg-[#9b6b6b]',
+    accent: '#9b6b6b',
     border: 'border-[#c49a9a]',
   },
   未评: {
+    label: '未评',
+    sub: 'UNRATED',
     labelBg: 'bg-[#e8e4e1]',
     labelText: 'text-[#6b6763]',
-    dot: 'bg-[#9e9a96]',
+    accent: '#9e9a96',
     border: 'border-[#c9c5c1]',
   },
 }
@@ -79,8 +91,8 @@ function SeasonFilter({
   onChange: (v: string) => void
 }) {
   return (
-    <div className="mb-6 flex flex-wrap items-center gap-2">
-      <span className="text-xs font-medium tracking-wide text-[var(--muted)]">发布时期</span>
+    <div className="mb-8 flex flex-wrap items-center gap-2">
+      <span className="text-xs font-medium tracking-widest text-[var(--muted)] uppercase">发布时期</span>
       {seasons.map((s) => (
         <button
           key={s}
@@ -100,48 +112,74 @@ function SeasonFilter({
   )
 }
 
-/** Single anime thumbnail with hover tooltip trigger */
-function AnimeThumb({
+function AnimeCard({
   anime,
-  onEnter,
-  onMove,
-  onLeave,
+  onHoverStart,
+  onHoverMove,
+  onHoverEnd,
   onClick,
 }: {
   anime: Anime
-  onEnter: (el: HTMLElement, anime: Anime) => void
-  onMove: (el: HTMLElement) => void
-  onLeave: () => void
+  onHoverStart: (el: HTMLElement, anime: Anime) => void
+  onHoverMove: (el: HTMLElement) => void
+  onHoverEnd: () => void
   onClick: (anime: Anime) => void
 }) {
   const ref = useRef<HTMLButtonElement>(null)
+  const theme = tierMeta[anime.tier]
+  const review = anime.detail || anime.shortReview
 
   return (
     <button
       ref={ref}
       type="button"
       onClick={() => onClick(anime)}
-      onMouseEnter={() => ref.current && onEnter(ref.current, anime)}
-      onMouseMove={() => ref.current && onMove(ref.current)}
-      onMouseLeave={onLeave}
-      className="group relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--surface)] shadow-sm transition-all duration-300 ease-out hover:scale-110 hover:shadow-lg hover:z-10 sm:h-24 sm:w-24"
-      aria-label={`${anime.title}，${anime.tier}`}
+      onMouseEnter={() => ref.current && onHoverStart(ref.current, anime)}
+      onMouseMove={() => ref.current && onHoverMove(ref.current)}
+      onMouseLeave={onHoverEnd}
+      className="group relative flex flex-col overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--surface)] text-left shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(96,76,88,0.16)]"
     >
-      <CoverArt seed={anime.id} title={anime.title} image={anime.cover} />
-      {anime.dropped && (
-        <span className="absolute left-1 top-1 rounded bg-[var(--ink)]/70 px-1 py-0.5 text-[10px] text-[var(--bg)]">
-          已弃
-        </span>
-      )}
+      {/* Cover */}
+      <div className="relative aspect-[3/4] w-full overflow-hidden bg-[var(--accent-soft)]">
+        <CoverArt seed={anime.id} title={anime.title} image={anime.cover} />
+
+        {/* Hover overlay with review */}
+        <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-[var(--ink)]/85 via-[var(--ink)]/50 to-transparent p-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+          <p className="line-clamp-5 text-xs leading-relaxed text-[var(--bg)]">{review}</p>
+        </div>
+
+        {anime.dropped && (
+          <span className="absolute left-2 top-2 rounded bg-[var(--ink)]/80 px-1.5 py-0.5 text-[10px] text-[var(--bg)]">
+            已弃
+          </span>
+        )}
+      </div>
+
+      {/* Info */}
+      <div className="flex flex-1 flex-col p-3">
+        <h4 className="line-clamp-2 text-sm font-semibold leading-snug text-[var(--ink)] group-hover:text-[var(--accent-strong)]">
+          {anime.title}
+        </h4>
+        <p className="mt-1 text-[11px] text-[var(--muted)]">
+          {anime.season} · {anime.genre || '动画'}
+        </p>
+        <div className="mt-auto flex items-center justify-between pt-2">
+          <span
+            className="h-1.5 w-1.5 rounded-full"
+            style={{ backgroundColor: theme.accent }}
+          />
+          <span className="text-[10px] text-[var(--muted)]">{anime.status}</span>
+        </div>
+      </div>
     </button>
   )
 }
 
-/** Floating hover popover rendered via portal */
+/** Floating hover popover for richer details */
 function AnimePopover({ anime, targetEl, onClose }: { anime: Anime; targetEl: HTMLElement; onClose: () => void }) {
   const [pos, setPos] = useState<{ left: number; top: number }>({ left: 0, top: 0 })
   const cardRef = useRef<HTMLDivElement>(null)
-  const theme = tierTheme[anime.tier]
+  const theme = tierMeta[anime.tier]
 
   useEffect(() => {
     const card = cardRef.current
@@ -154,12 +192,10 @@ function AnimePopover({ anime, targetEl, onClose }: { anime: Anime; targetEl: HT
     let left = rect.left + rect.width / 2 - cardRect.width / 2
     let top = rect.top - cardRect.height - margin
 
-    // keep inside viewport horizontally
     if (left < margin) left = margin
     if (left + cardRect.width > window.innerWidth - margin) {
       left = window.innerWidth - cardRect.width - margin
     }
-    // if no room above, place below
     if (top < margin) {
       top = rect.bottom + margin
     }
@@ -187,8 +223,7 @@ function AnimePopover({ anime, targetEl, onClose }: { anime: Anime; targetEl: HT
           </p>
           <div className="mt-2 flex items-center gap-2">
             <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${theme.labelBg} ${theme.labelText} ${theme.border}`}>
-              <span className={`h-1.5 w-1.5 rounded-full ${theme.dot}`} />
-              {tierDisplay(anime.tier)}
+              {theme.label}
             </span>
             {anime.tierNote && <span className="text-xs text-[var(--muted)]">{anime.tierNote}</span>}
           </div>
@@ -216,7 +251,7 @@ function AnimePopover({ anime, targetEl, onClose }: { anime: Anime; targetEl: HT
   )
 }
 
-/** Detail modal for click / mobile interaction */
+/** Detail modal for click / mobile */
 function AnimeModal({ anime, onClose }: { anime: Anime; onClose: () => void }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
@@ -228,7 +263,7 @@ function AnimeModal({ anime, onClose }: { anime: Anime; onClose: () => void }) {
     }
   }, [onClose])
 
-  const theme = tierTheme[anime.tier]
+  const theme = tierMeta[anime.tier]
   const fullReview = anime.detail || anime.shortReview
 
   return (
@@ -243,7 +278,7 @@ function AnimeModal({ anime, onClose }: { anime: Anime; onClose: () => void }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start gap-4">
-          <div className="h-28 w-22 flex-shrink-0 overflow-hidden rounded-xl border border-[var(--line)] sm:h-36 sm:w-28">
+          <div className="h-32 w-24 flex-shrink-0 overflow-hidden rounded-xl border border-[var(--line)] sm:h-40 sm:w-28">
             <CoverArt seed={anime.id} title={anime.title} image={anime.cover} />
           </div>
           <div className="min-w-0 flex-1">
@@ -254,7 +289,7 @@ function AnimeModal({ anime, onClose }: { anime: Anime; onClose: () => void }) {
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <span className={`rounded-full border px-3 py-1 text-sm font-medium ${theme.labelBg} ${theme.labelText} ${theme.border}`}>
-                {tierDisplay(anime.tier)}
+                {theme.label}
               </span>
               {anime.tierNote && <span className="text-xs text-[var(--muted)]">（{anime.tierNote}）</span>}
             </div>
@@ -318,42 +353,45 @@ export default function AnimeJournal() {
 
   return (
     <div>
-      <p className="mb-5 text-sm leading-relaxed text-[var(--muted)]">
-        我的个人评级梯队：
-        <span className="font-medium text-[#b07d62]">夯</span> ＞
-        <span className="font-medium text-[#7d6a91]"> 顶级</span> ＞
-        <span className="font-medium text-[#5e7d91]"> 人上人</span> ＞
-        <span className="font-medium text-[#8a8580]"> NPC</span> ＞
-        <span className="font-medium text-[#9b6b6b]"> 拉</span>
-        。悬停封面查看剧评，点击打开完整卡片。
-      </p>
-
       <SeasonFilter seasons={seasons} value={filterSeason} onChange={setFilterSeason} />
 
-      <div className="space-y-5">
+      <div className="space-y-10">
         {visibleTiers.map((tier) => {
-          const theme = tierTheme[tier]
+          const theme = tierMeta[tier]
+          const items = grouped[tier]
           return (
-            <div
-              key={tier}
-              className="flex gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3 shadow-sm transition-shadow hover:shadow-md sm:gap-4 sm:p-4"
-            >
+            <div key={tier} className="flex gap-4 sm:gap-6">
               {/* Tier label */}
-              <div
-                className={`flex w-10 flex-shrink-0 flex-col items-center justify-center rounded-xl ${theme.labelBg} ${theme.labelText} sm:w-12`}
-              >
-                <span className="text-lg font-bold leading-none sm:text-xl">{tierDisplay(tier)}</span>
+              <div className="relative flex w-14 flex-shrink-0 flex-col items-center justify-center rounded-2xl border border-[var(--line)] py-6 sm:w-20 sm:py-8">
+                <div
+                  className={`absolute inset-x-2 top-4 bottom-4 rounded-xl ${theme.labelBg} opacity-40`}
+                />
+                <div className="relative z-10 flex flex-col items-center text-center">
+                  <span className={`text-2xl font-bold leading-none ${theme.labelText} sm:text-3xl`}>
+                    {theme.label}
+                  </span>
+                  <span className="mt-2 text-[9px] tracking-widest text-[var(--muted)] uppercase sm:text-[10px]">
+                    {theme.sub}
+                  </span>
+                  <span className="mt-4 text-[10px] text-[var(--muted)] sm:text-xs">{items.length} works</span>
+                </div>
+
+                {/* Decorative diamond */}
+                <div
+                  className="absolute -right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 rotate-45 border border-[var(--line)] bg-[var(--surface)]"
+                  style={{ borderColor: theme.accent }}
+                />
               </div>
 
-              {/* Thumbnails row */}
-              <div className="flex flex-1 flex-wrap items-center gap-2 sm:gap-3">
-                {grouped[tier].map((anime) => (
-                  <AnimeThumb
+              {/* Cards grid */}
+              <div className="grid flex-1 grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 sm:gap-4">
+                {items.map((anime) => (
+                  <AnimeCard
                     key={anime.id}
                     anime={anime}
-                    onEnter={(el, a) => setHovered({ anime: a, el })}
-                    onMove={(el) => setHovered((prev) => (prev && prev.anime.id === anime.id ? { anime, el } : prev))}
-                    onLeave={() => setHovered(null)}
+                    onHoverStart={(el, a) => setHovered({ anime: a, el })}
+                    onHoverMove={(el) => setHovered((prev) => (prev && prev.anime.id === anime.id ? { anime, el } : prev))}
+                    onHoverEnd={() => setHovered(null)}
                     onClick={(a) => setSelected(a)}
                   />
                 ))}
