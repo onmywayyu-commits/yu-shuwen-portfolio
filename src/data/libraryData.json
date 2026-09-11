@@ -1,0 +1,15 @@
+{
+  "animes": [
+    {
+      "bgmId": "364450",
+      "rating": "9/10",
+      "comment": "非常优秀的作画与演出",
+      "xhsUrl": ""
+    }
+  ],
+  "musics": [
+    { "songName": "プラネタリウム", "artist": "大塚愛" },
+    { "songName": "夜に駆ける", "artist": "YOASOBI" },
+    { "songName": "YOKOHAMA blues", "artist": "SEKAI NO OWARI" }
+  ]
+}
