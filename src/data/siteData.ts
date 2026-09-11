@@ -114,7 +114,7 @@ export interface ContactLink {
 export const siteMeta: SiteMeta = {
   name: '俞舒文',
   tagline: '用理性处理问题，用热爱记录生活。',
-  taglineEn: 'Finance Mind, Creative Soul.',
+  taglineEn: 'Towards warmth gently, all smooths out.',
   intro:
     '香港中文大学（深圳）金融学本科生，正在向行业研究与信用分析方向努力。' +
     '白天和财报、数据与研报打交道，晚上写新番评价、弹吉他、做手工——' +
